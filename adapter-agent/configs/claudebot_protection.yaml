@@ -1,0 +1,193 @@
+# ClaudeBot 安全防护配置
+# 多工具协同防护架构
+
+app_name: claudebot
+version: "1.0.0"
+description: "ClaudeBot 多层安全防护配置"
+
+# ========================================
+# 第一道防线：OpenGuardrails（内容安全）
+# ========================================
+layer_1:
+  tool: openguardrails
+  enabled: true
+  priority: 1
+  checks:
+    - content_safety      # 内容安全检测
+    - pii_detection       # 隐私信息识别
+    - toxicity_filter     # 有害内容过滤
+
+  config:
+    toxicity_threshold: 0.7
+    pii_detection_enabled: true
+    languages:
+      - zh
+      - en
+    custom_blocked_words:
+      - "密码"
+      - "password"
+      - "secret"
+
+# ========================================
+# 第二道防线：LlamaFirewall（操作安全）
+# ========================================
+layer_2:
+  tool: llama_firewall
+  enabled: true
+  priority: 2
+  checks:
+    - prompt_injection    # Prompt注入检测
+    - tool_call_security  # 工具调用安全
+    - permission_check    # 权限边界检查
+
+  config:
+    # 允许的工具列表
+    allowed_tools:
+      - read_email
+      - send_email
+      - search_calendar
+      - create_event
+
+    # 禁止的工具
+    blocked_tools:
+      - delete_all
+      - admin_override
+
+# ========================================
+# 危险操作规则
+# ========================================
+dangerous_operations:
+  # 完全禁止的操作
+  blocked:
+    - pattern: "delete_*"
+      reason: "删除操作默认禁止"
+    - pattern: "send_email_bulk"
+      reason: "批量发送邮件禁止"
+    - pattern: "export_all_*"
+      reason: "批量导出禁止"
+
+  # 需要确认的操作
+  confirm_required:
+    - pattern: "delete_email"
+      message: "确认要删除邮件 {email_id} 吗？"
+    - pattern: "send_email"
+      message: "确认发送邮件给 {recipient} 吗？"
+    - pattern: "modify_calendar"
+      message: "确认修改日历事件 {event_id} 吗？"
+
+  # 频率限制的操作
+  rate_limited:
+    - pattern: "send_*"
+      limit: "10/hour"
+      reason: "发送操作频率限制"
+    - pattern: "create_*"
+      limit: "50/hour"
+      reason: "创建操作频率限制"
+
+# ========================================
+# 敏感信息处理
+# ========================================
+sensitive_data:
+  auto_mask:
+    - type: email
+      pattern: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+      replacement: "[邮箱已隐藏]"
+    - type: phone_cn
+      pattern: "\\b1[3-9]\\d{9}\\b"
+      replacement: "[手机号已隐藏]"
+    - type: id_card
+      pattern: "\\b\\d{17}[\\dXx]\\b"
+      replacement: "[身份证已隐藏]"
+    - type: credit_card
+      pattern: "\\b\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{4}[-\\s]?\\d{4}\\b"
+      replacement: "[银行卡已隐藏]"
+    - type: api_key
+      pattern: "(?i)(api[_-]?key|apikey|secret[_-]?key)\\s*[:=]\\s*['\"]?([a-zA-Z0-9_-]{20,})['\"]?"
+      replacement: "[API密钥已隐藏]"
+
+# ========================================
+# 校验节点配置
+# ========================================
+checkpoints:
+  pre_prompt:
+    enabled: true
+    checks:
+      - jailbreak_detection
+      - sensitive_word_filter
+      - prompt_injection_guard
+    trigger_strategy: realtime
+
+  post_task_split:
+    enabled: true
+    checks:
+      - task_intent_validation
+      - permission_boundary_check
+    trigger_strategy: realtime
+
+  pre_tool_call:
+    enabled: true
+    checks:
+      - dangerous_operation_intercept
+      - confirmation_required_check
+      - rate_limit_check
+    trigger_strategy: realtime
+
+  post_result:
+    enabled: true
+    checks:
+      - pii_masking
+      - content_safety_check
+      - hallucination_detection
+    trigger_strategy: realtime
+
+# ========================================
+# 审计日志配置
+# ========================================
+audit:
+  enabled: true
+  log_all_tool_calls: true
+  log_blocked_requests: true
+  alert_on_blocked: true
+  retention_days: 90
+
+  # 告警配置
+  alerts:
+    - type: high_block_rate
+      threshold: 0.1  # 10% 拦截率
+      window_minutes: 60
+      notify:
+        - email
+        - slack
+
+    - type: prompt_injection_detected
+      notify:
+        - email
+        - slack
+        - pagerduty
+
+# ========================================
+# 容灾兜底配置
+# ========================================
+disaster_recovery:
+  # 工具故障切换
+  tool_failover:
+    openguardrails:
+      fallback: llama_guard
+      timeout_ms: 5000
+
+    llama_firewall:
+      fallback: lightweight_rules
+      timeout_ms: 5000
+
+  # 轻量规则兜底
+  lightweight_rules:
+    enabled: true
+    keyword_filter:
+      - "ignore all"
+      - "disregard"
+      - "jailbreak"
+      - "DAN mode"
+
+    length_limits:
+      max_input: 10000
+      max_output: 50000

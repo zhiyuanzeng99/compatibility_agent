@@ -1,0 +1,138 @@
+# 常见问题和解决方案
+# Guard Adapter 知识库
+
+issues:
+  - id: "async_mismatch"
+    title: "异步/同步方法不匹配"
+    symptoms:
+      - "RuntimeError: cannot be called from a running event loop"
+      - "coroutine was never awaited"
+    causes:
+      - "原项目使用异步，但包装器使用同步调用"
+      - "原项目使用同步，但包装器使用异步调用"
+    solutions:
+      - description: "检查原项目是否使用async/await"
+        code: |
+          # 如果原方法是异步的
+          async def safe_chat(self, input):
+              result = await self.bot.chat(input)  # 使用 await
+              return result
+      - description: "使用 asyncio.run() 包装同步调用"
+        code: |
+          import asyncio
+          result = asyncio.run(self.bot.chat(input))
+
+  - id: "import_error"
+    title: "导入错误"
+    symptoms:
+      - "ModuleNotFoundError: No module named 'guard_wrapper'"
+      - "ImportError: cannot import name"
+    causes:
+      - "guard_wrapper.py 未放置在正确位置"
+      - "Python路径配置问题"
+    solutions:
+      - description: "确保 guard_wrapper.py 在项目根目录或 PYTHONPATH 中"
+        code: |
+          # 方法1: 放在同一目录
+          from guard_wrapper import guard
+
+          # 方法2: 添加到路径
+          import sys
+          sys.path.append('/path/to/guard_adapter')
+          from guard_wrapper import guard
+
+  - id: "false_positive"
+    title: "误报 - 正常输入被拦截"
+    symptoms:
+      - "正常的用户输入被标记为危险"
+      - "合法操作被阻止"
+    causes:
+      - "检测模式过于严格"
+      - "业务场景需要特殊处理"
+    solutions:
+      - description: "调整检测模式或添加白名单"
+        code: |
+          # 关闭严格模式
+          guard = GuardWrapper(strict_mode=False)
+
+          # 或者添加白名单
+          WHITELIST_PATTERNS = [
+              r'delete.*draft',  # 允许删除草稿
+          ]
+
+  - id: "performance_impact"
+    title: "性能影响"
+    symptoms:
+      - "响应时间明显增加"
+      - "高并发下出现延迟"
+    causes:
+      - "正则表达式匹配开销"
+      - "多次检查叠加"
+    solutions:
+      - description: "优化检测逻辑，使用缓存"
+        code: |
+          import functools
+
+          @functools.lru_cache(maxsize=1000)
+          def cached_check(input_hash):
+              return guard.check_input(input_hash)
+
+  - id: "tool_call_blocked"
+    title: "工具调用被意外阻止"
+    symptoms:
+      - "需要的工具功能无法使用"
+      - "工具调用返回拦截消息"
+    causes:
+      - "工具名称在黑名单中"
+      - "工具参数触发了危险模式检测"
+    solutions:
+      - description: "自定义工具白名单"
+        code: |
+          # 添加允许的工具
+          ALLOWED_TOOLS = ['read_email', 'send_email', 'search']
+
+          def check_tool_call(self, tool_name, tool_args):
+              if tool_name in ALLOWED_TOOLS:
+                  return CheckResult(is_safe=True)
+              # 继续其他检查...
+
+  - id: "encoding_error"
+    title: "编码错误"
+    symptoms:
+      - "UnicodeDecodeError"
+      - "特殊字符处理失败"
+    causes:
+      - "输入包含非UTF-8字符"
+      - "文件编码不一致"
+    solutions:
+      - description: "确保统一使用UTF-8编码"
+        code: |
+          # 处理输入时统一编码
+          user_input = user_input.encode('utf-8', errors='ignore').decode('utf-8')
+
+# ClaudeBot 特定问题
+claudebot_issues:
+  - id: "email_deletion_bypass"
+    title: "邮件删除检测被绕过"
+    symptoms:
+      - "用户使用变体表述绕过检测"
+    solutions:
+      - description: "增强邮件操作检测模式"
+        code: |
+          EMAIL_DANGER_PATTERNS = [
+              r'(delete|remove|清除|删除).{0,20}(email|mail|邮件)',
+              r'(email|mail|邮件).{0,20}(delete|remove|清除|删除)',
+              r'把.{0,10}邮件.{0,10}(删|清)',
+          ]
+
+  - id: "bulk_operation_detection"
+    title: "批量操作检测"
+    symptoms:
+      - "批量邮件发送未被拦截"
+    solutions:
+      - description: "添加批量操作关键词检测"
+        code: |
+          BULK_PATTERNS = [
+              r'(批量|bulk|all|所有|全部).{0,20}(发送|send|删除|delete)',
+              r'(send|发送).{0,20}(all|所有|批量|bulk)',
+          ]

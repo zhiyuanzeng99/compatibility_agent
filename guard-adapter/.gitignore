@@ -51,15 +51,6 @@ coverage.xml
 *.log
 logs/
 
-# Training
-*.pt
-*.pth
-*.ckpt
-*.safetensors
-wandb/
-outputs/
-checkpoints/
-
 # OS
 .DS_Store
 Thumbs.db
@@ -67,10 +58,3 @@ Thumbs.db
 # Project specific
 .guard_adapter_backup_*/
 *.bak
-
-# Secrets
-.env
-.env.local
-*.key
-*.pem
-credentials.json

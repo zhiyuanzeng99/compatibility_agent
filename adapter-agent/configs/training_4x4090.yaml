@@ -1,0 +1,174 @@
+# GuardAdapter 训练配置
+# 针对 4x RTX 4090 (96GB VRAM) 优化
+
+# ========================================
+# 硬件配置
+# ========================================
+hardware:
+  num_gpus: 4
+  gpu_model: "RTX 4090"
+  gpu_memory_gb: 24
+  total_memory_gb: 96
+  cuda_visible_devices: "0,1,2,3"
+
+# ========================================
+# 基础模型选择
+# ========================================
+# 推荐配置：Qwen2.5-32B-Instruct + QLoRA + ZeRO-3
+model:
+  # 7B: 可全参数微调，适合快速实验
+  # 14B: 推荐 LoRA
+  # 32B: 推荐 QLoRA + ZeRO-3 (推荐配置)
+  # 72B: 需要 QLoRA + ZeRO-3 + CPU Offload
+  base_model: "Qwen/Qwen2.5-32B-Instruct"
+  model_size: "32b"
+
+# ========================================
+# SFT 监督微调配置
+# ========================================
+sft:
+  # LoRA 配置
+  use_lora: true
+  use_qlora: true
+  lora:
+    r: 64
+    lora_alpha: 128
+    target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+      - gate_proj
+      - up_proj
+      - down_proj
+    lora_dropout: 0.05
+    bias: none
+
+  # QLoRA 4bit 量化
+  qlora:
+    load_in_4bit: true
+    bnb_4bit_compute_dtype: bfloat16
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_use_double_quant: true
+
+  # 训练参数
+  training:
+    num_epochs: 3
+    per_device_train_batch_size: 1
+    per_device_eval_batch_size: 1
+    gradient_accumulation_steps: 8  # 有效批量 = 1*4*8 = 32
+    learning_rate: 2.0e-5
+    warmup_ratio: 0.1
+    weight_decay: 0.01
+    max_seq_length: 4096
+    max_grad_norm: 1.0
+
+  # 保存配置
+  save:
+    output_dir: "./output/sft"
+    save_strategy: steps
+    save_steps: 500
+    save_total_limit: 3
+    logging_steps: 10
+    eval_steps: 500
+
+# ========================================
+# DeepSpeed ZeRO-3 配置
+# ========================================
+deepspeed:
+  zero_stage: 3
+
+  zero_optimization:
+    stage: 3
+    offload_optimizer:
+      device: cpu
+      pin_memory: true
+    offload_param:
+      device: none  # 不 offload 参数，保持速度
+    overlap_comm: true
+    contiguous_gradients: true
+    reduce_bucket_size: auto
+    stage3_prefetch_bucket_size: auto
+    stage3_param_persistence_threshold: auto
+    stage3_gather_16bit_weights_on_model_save: true
+
+  bf16:
+    enabled: true
+
+  gradient_accumulation_steps: 8
+  gradient_clipping: 1.0
+  train_micro_batch_size_per_gpu: 1
+
+# ========================================
+# DPO 偏好对齐配置
+# ========================================
+dpo:
+  # 使用 SFT 后的模型
+  model_path: "./output/sft/final"
+
+  # DPO 参数
+  beta: 0.1
+  loss_type: sigmoid
+
+  training:
+    num_epochs: 1
+    per_device_train_batch_size: 1
+    gradient_accumulation_steps: 8
+    learning_rate: 5.0e-7
+    max_seq_length: 2048
+    max_prompt_length: 1024
+
+  save:
+    output_dir: "./output/dpo"
+    save_steps: 200
+
+# ========================================
+# 数据配置
+# ========================================
+data:
+  sft:
+    train_path: "./data/sft_train.jsonl"
+    eval_path: "./data/sft_eval.jsonl"
+    # 数据类型分布
+    types:
+      - name: "应用分析对话"
+        samples: 10000
+      - name: "工具推荐对话"
+        samples: 5000
+      - name: "代码生成对话"
+        samples: 20000
+      - name: "问题诊断对话"
+        samples: 15000
+
+  dpo:
+    train_path: "./data/dpo_train.jsonl"
+    preference_pairs: 20000
+    sources:
+      - name: human_annotation
+        count: 5000
+      - name: gpt4_judge
+        count: 10000
+      - name: execution_feedback
+        count: 5000
+
+# ========================================
+# 评估指标目标
+# ========================================
+evaluation:
+  targets:
+    deployment_success_rate: 0.90  # ≥90%
+    auto_fix_rate: 0.70            # ≥70%
+    code_accuracy: 0.95            # ≥95%
+    tool_recommendation_accuracy: 0.85  # ≥85%
+    avg_inference_latency_ms: 100  # ≤100ms
+    cross_tool_validation_success: 0.95  # ≥95%
+    boundary_case_accuracy: 0.85   # ≥85%
+
+# ========================================
+# 启动命令
+# ========================================
+# SFT 训练:
+# deepspeed --num_gpus=4 train_sft.py --config training_4x4090.yaml
+#
+# DPO 训练:
+# accelerate launch --config_file accelerate_zero3.yaml train_dpo.py --config training_4x4090.yaml

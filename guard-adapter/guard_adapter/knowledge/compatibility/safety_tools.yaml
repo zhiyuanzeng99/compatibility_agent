@@ -1,0 +1,119 @@
+# 安全工具兼容性配置
+# Guard Adapter 知识库
+
+safety_tools:
+  openguardrails:
+    name: "OpenGuardrails"
+    version: ">=0.1.0"
+    description: "开源AI安全防护工具"
+    features:
+      - content_safety
+      - pii_detection
+      - toxicity_filter
+      - prompt_injection_detection
+    supported_checkpoints:
+      - pre_prompt
+      - post_result
+    integration_methods:
+      - sdk
+      - proxy
+    install_command: "pip install openguardrails"
+    documentation: "https://github.com/openguardrails/openguardrails"
+
+  nemo_guardrails:
+    name: "NeMo Guardrails"
+    version: ">=0.5.0"
+    description: "NVIDIA NeMo Guardrails"
+    features:
+      - dialog_rails
+      - content_moderation
+      - topic_control
+    supported_checkpoints:
+      - pre_prompt
+      - post_task_split
+      - post_result
+    integration_methods:
+      - sdk
+    install_command: "pip install nemoguardrails"
+    documentation: "https://github.com/NVIDIA/NeMo-Guardrails"
+
+  llama_guard:
+    name: "Llama Guard"
+    version: ">=1.0.0"
+    description: "Meta Llama安全防护模型"
+    features:
+      - content_classification
+      - safety_scoring
+    supported_checkpoints:
+      - pre_prompt
+      - post_result
+    integration_methods:
+      - sdk
+    install_command: "pip install llama-guard"
+    documentation: "https://ai.meta.com/llama/"
+
+  guardrails_ai:
+    name: "Guardrails AI"
+    version: ">=0.4.0"
+    description: "Guardrails AI验证框架"
+    features:
+      - output_validation
+      - schema_enforcement
+      - custom_validators
+    supported_checkpoints:
+      - post_result
+    integration_methods:
+      - sdk
+    install_command: "pip install guardrails-ai"
+    documentation: "https://www.guardrailsai.com/"
+
+# AI应用兼容性配置
+ai_applications:
+  claudebot:
+    name: "ClaudeBot"
+    type: "chatbot"
+    framework: "anthropic"
+    supported_tools:
+      - openguardrails
+      - nemo_guardrails
+      - llama_guard
+      - guardrails_ai
+    integration_points:
+      - method: "chat"
+        checkpoint: "pre_prompt"
+      - method: "tool_use"
+        checkpoint: "pre_tool_call"
+      - method: "response"
+        checkpoint: "post_result"
+    special_considerations:
+      - "需要处理异步消息流"
+      - "工具调用需要额外的权限检查"
+      - "邮件操作需要确认机制"
+
+  langchain:
+    name: "LangChain"
+    type: "framework"
+    supported_tools:
+      - openguardrails
+      - nemo_guardrails
+      - guardrails_ai
+    integration_points:
+      - method: "chain.run"
+        checkpoint: "pre_prompt"
+      - method: "agent.execute"
+        checkpoint: "pre_tool_call"
+    special_considerations:
+      - "使用回调机制集成"
+      - "支持多种LLM后端"
+
+  llamaindex:
+    name: "LlamaIndex"
+    type: "framework"
+    supported_tools:
+      - openguardrails
+      - guardrails_ai
+    integration_points:
+      - method: "query_engine.query"
+        checkpoint: "pre_prompt"
+    special_considerations:
+      - "RAG场景需要检查检索结果"

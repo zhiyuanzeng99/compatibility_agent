@@ -1,0 +1,100 @@
+{# ClaudeBot 安全包装器模板 #}
+"""
+安全增强的 ClaudeBot 包装器
+由 GuardAdapter 自动生成于 {{ timestamp }}
+目标项目: {{ project_path }}
+"""
+
+from typing import Any, Optional
+{% if has_async %}
+import asyncio
+{% endif %}
+
+from guard_wrapper import guard, CheckResult
+
+
+class Safe{{ class_name }}:
+    """
+    安全增强的 {{ class_name }} 包装器
+
+    功能:
+    1. 输入校验 - 防止 Prompt Injection
+    2. 工具调用检查 - 拦截危险操作
+    3. 输出校验 - 敏感信息脱敏
+    """
+
+    def __init__(self, original_bot: Any):
+        self.bot = original_bot
+        self.guard = guard
+        self._interception_log = []
+
+{% if has_async %}
+    async def {{ main_method }}(self, user_input: str) -> str:
+        """安全增强的主方法 (异步)"""
+        # Step 1: 输入校验
+        input_check = self.guard.check_input(user_input)
+        if not input_check.is_safe:
+            self._log_interception('input', user_input, input_check)
+            return f"🚫 输入被拦截: {input_check.reason}"
+
+        # Step 2: 调用原有逻辑
+        try:
+            response = await self.bot.{{ main_method }}(user_input)
+        except Exception as e:
+            return f"❌ 处理错误: {str(e)}"
+
+        # Step 3: 输出校验
+        output_check = self.guard.check_output(response)
+        if output_check.sanitized_content:
+            self._log_interception('output', response, output_check)
+            response = output_check.sanitized_content
+
+        return response
+{% else %}
+    def {{ main_method }}(self, user_input: str) -> str:
+        """安全增强的主方法 (同步)"""
+        # Step 1: 输入校验
+        input_check = self.guard.check_input(user_input)
+        if not input_check.is_safe:
+            self._log_interception('input', user_input, input_check)
+            return f"🚫 输入被拦截: {input_check.reason}"
+
+        # Step 2: 调用原有逻辑
+        try:
+            response = self.bot.{{ main_method }}(user_input)
+        except Exception as e:
+            return f"❌ 处理错误: {str(e)}"
+
+        # Step 3: 输出校验
+        output_check = self.guard.check_output(response)
+        if output_check.sanitized_content:
+            self._log_interception('output', response, output_check)
+            response = output_check.sanitized_content
+
+        return response
+{% endif %}
+
+    def safe_tool_call(self, tool_name: str, tool_args: dict) -> tuple[bool, str]:
+        """安全的工具调用检查"""
+        check = self.guard.check_tool_call(tool_name, tool_args)
+        if not check.is_safe:
+            self._log_interception('tool', f"{tool_name}({tool_args})", check)
+        return check.is_safe, check.reason
+
+    def _log_interception(self, check_type: str, content: str, result):
+        """记录拦截日志"""
+        self._interception_log.append({
+            'type': check_type,
+            'content': content[:100],
+            'reason': result.reason,
+            'risk_level': result.risk_level,
+        })
+
+    def get_interception_log(self) -> list:
+        """获取拦截日志"""
+        return self._interception_log.copy()
+
+
+def wrap_{{ class_name|lower }}(bot: Any) -> Safe{{ class_name }}:
+    """便捷函数：包装 {{ class_name }} 实例"""
+    return Safe{{ class_name }}(bot)
