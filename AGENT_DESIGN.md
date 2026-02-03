@@ -1467,3 +1467,51 @@ Week 25-30:
 4. **持续演进**: 知识库持续更新，跟进最新工具和最佳实践
 
 如需进一步讨论任何模块的详细设计，请告诉我！
+# 六、实现现状与缺口（面向 V1 落地）
+
+> 这一节回答“现在代码里有哪些、数据来源和训练是否落地”的问题。
+
+## 6.1 当前已落地的模块（代码路径）
+
+**核心能力层**
+- Scanner：`adapter-agent/adapter_agent/core/scanner.py`
+- Matcher：`adapter-agent/adapter_agent/core/matcher.py`
+- Generator：`adapter-agent/adapter_agent/core/generator.py`
+- Deployer：`adapter-agent/adapter_agent/core/deployer.py`
+- Validator：`adapter-agent/adapter_agent/core/validator.py`
+- Fixer：`adapter-agent/adapter_agent/core/fixer.py`
+- CrossTool Orchestrator：`adapter-agent/adapter_agent/core/orchestrator.py`
+- Lifecycle 控制器：`adapter-agent/adapter_agent/core/lifecycle.py`
+
+**插件体系**
+- 安全工具插件：`adapter-agent/adapter_agent/plugins/safety_tools/*`
+- 应用集成插件：`adapter-agent/adapter_agent/plugins/app_integrators/*`
+
+**Pipeline**
+- V0（OpenClaw + OpenGuardrails 快速链路）：`adapter-agent/adapter_agent/v0/pipeline.py`
+- V1（通用多工具管线）：`adapter-agent/adapter_agent/v1/pipeline.py`
+
+## 6.2 数据来源与训练现状
+
+**数据来源（设计层面已定义）**
+- 官方文档 / API 参考 / GitHub Issues / Discussions / 配置模板 / 示例代码
+- 兼容性矩阵与测试用例（多框架、多模型、多部署）
+
+**训练现状（代码已具备最小闭环）**
+- 训练入口与脚本：`adapter-agent/adapter_agent/training/`
+- 数据格式说明：`adapter-agent/adapter_agent/training/data_formats.md`
+- 最小种子数据：`adapter-agent/adapter_agent/training/data/seed_sft.jsonl`、`seed_tool.jsonl`
+- 快速训练文档：`adapter-agent/adapter_agent/training/README.md`
+
+**尚未打通的部分（V1 需要补齐）**
+- 在线数据采集（Issues/Docs/示例仓库）的自动化爬取与结构化清洗
+- 训练结果与运行时能力的闭环（模型版本管理、A/B 评测、灰度发布）
+- 跨工具协同校验的“真实执行器”（目前是规则级编排，尚未接入各工具真实 API）
+
+## 6.3 V1 下一步实现清单（建议优先级）
+
+1) **插件执行器**：把安全工具插件真正接入各工具 API（OpenGuardrails/NeMo/LlamaFirewall）
+2) **集成点落地**：针对 `PRE_PROMPT / PRE_TOOL_CALL / POST_RESULT` 生成中间件或 wrapper
+3) **多工具协同规则**：把编排策略从“顺序执行”升级为“融合策略（all/any/majority）”
+4) **验证与修复联动**：Validator 失败自动触发 Fixer 的修复动作
+5) **数据闭环**：把生产验证日志写入训练数据池（形成再训练与回归）

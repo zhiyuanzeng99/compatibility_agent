@@ -47,3 +47,46 @@ def v0_cmd(
     click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True))
     if not result.ok:
         sys.exit(1)
+
+
+@main.command("v1")
+@click.option("--project-path", required=True, type=click.Path(path_type=Path))
+@click.option("--output-dir", default=None, type=click.Path(path_type=Path))
+@click.option("--tool", default=None)
+@click.option("--tools", default=None)
+@click.option("--deploy/--no-deploy", default=True)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--mode", default="direct")
+@click.option("--validate/--no-validate", default=True)
+@click.option("--auto-fix/--no-auto-fix", default=False)
+@click.option("--lifecycle/--no-lifecycle", default=True)
+def v1_cmd(
+    project_path: Path,
+    output_dir: Path | None,
+    tool: str | None,
+    tools: str | None,
+    deploy: bool,
+    dry_run: bool,
+    mode: str,
+    validate: bool,
+    auto_fix: bool,
+    lifecycle: bool,
+) -> None:
+    """Run V1 pipeline (multi-tool)."""
+    from .v1.pipeline import run_v1
+
+    result = run_v1(
+        project_path=str(project_path),
+        output_dir=str(output_dir) if output_dir else None,
+        tool=tool,
+        tools=tools,
+        deploy=deploy,
+        dry_run=dry_run,
+        mode=mode,
+        validate=validate,
+        auto_fix=auto_fix,
+        use_lifecycle=lifecycle,
+    )
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True))
+    if not result.ok:
+        sys.exit(1)
