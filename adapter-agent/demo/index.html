@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>V1 一键部署演示结果</title>
+    <link rel="stylesheet" href="demo.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <p class="kicker">Adapter Agent • V1 One-Click</p>
+          <h1>OpenClaw + OpenGuardrails 一键部署</h1>
+          <p class="subtitle">展示部署是否成功、健康检查、检测样例结果，并支持对比“之前 vs 之后”。</p>
+        </div>
+        <div class="badge" id="statusBadge">Loading…</div>
+      </header>
+
+      <section class="controls">
+        <label>
+          Before 文件
+          <input id="beforeFile" placeholder="demo_result_before.json" value="demo_result_before.json" />
+        </label>
+        <label>
+          After 文件
+          <input id="afterFile" placeholder="demo_result_after.json" value="demo_result_after.json" />
+        </label>
+        <button id="reload">重新加载</button>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>部署结果（After）</h2>
+          <div class="kv" id="summary"></div>
+        </div>
+        <div class="card">
+          <h2>健康检查</h2>
+          <div class="kv" id="health"></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>检测样例（After）</h2>
+          <pre id="detection"></pre>
+        </div>
+        <div class="card">
+          <h2>对比（Before vs After）</h2>
+          <pre id="diff"></pre>
+        </div>
+      </section>
+
+      <footer class="footnote">
+        <span>文件默认从当前目录读取：demo_result_before.json / demo_result_after.json</span>
+      </footer>
+    </main>
+
+    <script src="demo.js"></script>
+  </body>
+</html>
