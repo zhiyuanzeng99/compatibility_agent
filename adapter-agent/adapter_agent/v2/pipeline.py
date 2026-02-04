@@ -98,7 +98,10 @@ def run_v2(
             "v0": v0_result,
             "issues": issues,
         }
-        Path(state_path).write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        Path(state_path).write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False, default=str),
+            encoding="utf-8",
+        )
 
     return V2Result(
         ok=ok,
