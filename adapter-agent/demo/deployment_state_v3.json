@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-02-04T22:08:51.980331",
+  "plan": {
+    "target_app": "openclaw",
+    "guard": "openguardrails",
+    "mode": "blackbox",
+    "steps": [
+      {
+        "id": "scan",
+        "title": "扫描项目",
+        "details": "读取依赖与入口点，确认集成方式"
+      },
+      {
+        "id": "integrate",
+        "title": "生成集成配置",
+        "details": "写入配置或生成 gateway 文件"
+      },
+      {
+        "id": "deploy",
+        "title": "部署与重启",
+        "details": "应用配置并重启相关服务"
+      },
+      {
+        "id": "validate",
+        "title": "健康检查",
+        "details": "验证 guard 服务与样例检测"
+      }
+    ],
+    "risks": [],
+    "notes": [
+      "OpenClaw detected, use OpenGuardrails proxy config",
+      "Blackbox mode uses gateway integration"
+    ],
+    "artifacts": [
+      "~/.openclaw/openclaw.json",
+      "gateway_config.json"
+    ]
+  },
+  "execution": {
+    "ok": true,
+    "message": "v2.2 completed",
+    "issues": [],
+    "v22": {
+      "ok": true,
+      "message": "v2.2 completed",
+      "app": "openclaw",
+      "guard": "openguardrails",
+      "mode": "blackbox",
+      "decision": {
+        "app": "openclaw",
+        "guard": "openguardrails",
+        "mode": "blackbox",
+        "integration": "gateway"
+      },
+      "steps": [
+        "generate gateway config for blackbox integration"
+      ],
+      "artifacts": [
+        "/root/project/openclaw/.guardadapter/gateway_config.json"
+      ],
+      "v0": null,
+      "issues": [],
+      "state_path": null
+    }
+  },
+  "issues": []
+}
