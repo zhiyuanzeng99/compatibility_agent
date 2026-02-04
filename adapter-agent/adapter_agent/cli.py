@@ -49,6 +49,10 @@ def v0_cmd(
         sys.exit(1)
 
 
+if __name__ == "__main__":
+    main()
+
+
 @main.command("v1")
 @click.option("--project-path", required=True, type=click.Path(path_type=Path))
 @click.option("--output-dir", default=None, type=click.Path(path_type=Path))
