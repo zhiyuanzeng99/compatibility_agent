@@ -126,5 +126,76 @@ def v2_cmd(
         sys.exit(1)
 
 
+@main.command("v21")
+@click.option("--project-path", required=True, type=click.Path(path_type=Path))
+@click.option("--app", required=True)
+@click.option("--guard", required=True)
+@click.option("--mode", default="whitebox")
+@click.option("--validate/--no-validate", default=True)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--state-out", default=None)
+def v21_cmd(
+    project_path: Path,
+    app: str,
+    guard: str,
+    mode: str,
+    validate: bool,
+    dry_run: bool,
+    state_out: str | None,
+) -> None:
+    """Run V2.1 manual app/tool selection (blackbox/whitebox)."""
+    from .v2.pipeline import run_v21
+
+    result = run_v21(
+        project_path=str(project_path),
+        app=app,
+        guard=guard,
+        mode=mode,
+        validate=validate,
+        dry_run=dry_run,
+        state_out=state_out,
+    )
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
+    if not result.ok:
+        sys.exit(1)
+
+
+@main.command("v22")
+@click.option("--project-path", required=True, type=click.Path(path_type=Path))
+@click.option("--app", required=True)
+@click.option("--guard", required=True)
+@click.option("--mode", default="whitebox")
+@click.option("--validate/--no-validate", default=True)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--out-dir", default=None)
+@click.option("--state-out", default=None)
+def v22_cmd(
+    project_path: Path,
+    app: str,
+    guard: str,
+    mode: str,
+    validate: bool,
+    dry_run: bool,
+    out_dir: str | None,
+    state_out: str | None,
+) -> None:
+    """Run V2.2 (blackbox/whitebox + gateway artifacts)."""
+    from .v2.pipeline import run_v22
+
+    result = run_v22(
+        project_path=str(project_path),
+        app=app,
+        guard=guard,
+        mode=mode,
+        validate=validate,
+        dry_run=dry_run,
+        out_dir=out_dir,
+        state_out=state_out,
+    )
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
+    if not result.ok:
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()

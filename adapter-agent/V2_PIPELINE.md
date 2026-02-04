@@ -21,6 +21,46 @@ python -m adapter_agent.cli v2 \
   --state-out ./deployment_state.json
 ```
 
+## V2.1（手动选择 Guard + 应用 + 模式）
+符合你的诉求：人工选择 Guard 和应用，一键部署。
+
+```bash
+python -m adapter_agent.cli v21 \
+  --project-path /root/project/openclaw \
+  --app openclaw \
+  --guard openguardrails \
+  --mode whitebox \
+  --validate \
+  --state-out ./deployment_state_v21.json
+```
+
+### V2.1 参数说明
+- `--app`：目标应用（当前支持 `openclaw`）
+- `--guard`：安全工具（支持 `openguardrails` / `llama_firewall`）
+- `--mode`：`whitebox` 或 `blackbox`
+
+说明：
+- `openguardrails` 会走自动配置与健康检查
+- `llama_firewall` 目前输出为“待实现”提示（V2.2 接入）
+
+## V2.2（黑盒/白盒 + Gateway 产物）
+V2.2 引入黑盒模式（Gateway 配置生成），并为 LlamaFirewall 生成占位集成文件。
+
+```bash
+python -m adapter_agent.cli v22 \
+  --project-path /root/project/openclaw \
+  --app openclaw \
+  --guard openguardrails \
+  --mode blackbox \
+  --out-dir ./artifacts \
+  --state-out ./deployment_state_v22.json
+```
+
+### V2.2 说明
+- `--mode blackbox` 会生成 `gateway_config.json`
+- `--guard llama_firewall` 会生成 `llama_firewall_stub.py`（占位）
+- `--out-dir` 默认写入 `project/.guardadapter`
+
 ### 参数说明
 - `--project-path`：目标项目路径（必须）
 - `--validate/--no-validate`：是否执行健康检查

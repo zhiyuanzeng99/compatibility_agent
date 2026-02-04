@@ -102,3 +102,47 @@
   - Auto-fixes failures
   - Records failures and feeds training data
 - V2 plan: V2.0 (decision+auto-fix), V2.1 (multi-tool), V2.2 (any project + training loop).
+
+## Update: V2.1 / V2.2 (2026-02-04)
+
+- V2.1: manual selection for app/guard/mode (openclaw + openguardrails/llama_firewall).
+  Command:
+  ```bash
+  python -m adapter_agent.cli v21 \
+    --project-path /root/project/openclaw \
+    --app openclaw \
+    --guard openguardrails \
+    --mode whitebox \
+    --validate \
+    --state-out ./deployment_state_v21.json
+  ```
+
+- V2.2: blackbox/whitebox with gateway artifacts and llama_firewall stub.
+  Command:
+  ```bash
+  python -m adapter_agent.cli v22 \
+    --project-path /root/project/openclaw \
+    --app openclaw \
+    --guard openguardrails \
+    --mode blackbox \
+    --out-dir ./artifacts \
+    --state-out ./deployment_state_v22.json
+  ```
+  Artifacts:
+  - `gateway_config.json`
+  - `llama_firewall_stub.py` (placeholder)
+
+## Demo UI updates
+- `adapter-agent/demo/index.html` now supports scenario switch + file upload.
+- Added “dangerous command” compare JSON:
+  - `demo_result_before_danger.json`
+  - `demo_result_after_danger.json`
+- Added V2 status display page:
+  - `adapter-agent/demo/state.html`
+  - `adapter-agent/demo/state.css`
+  - `adapter-agent/demo/state.js`
+
+## Key takeaways
+- Current V0/V1/V2 are automation pipelines, not a trained Agent.
+- True Agent requires LLM decision layer + SFT/RL training loop + tool execution.
+- Next step if needed: Agent V3 with LLM planning + training data feedback.
