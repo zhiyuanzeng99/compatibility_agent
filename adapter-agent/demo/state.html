@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>V2 Deployment State</title>
+    <link rel="stylesheet" href="state.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <p class="kicker">Adapter Agent • V2</p>
+          <h1>一键部署状态展示</h1>
+          <p class="subtitle">展示 V2 自动决策、部署结果与验证摘要。</p>
+        </div>
+        <div class="badge" id="statusBadge">Loading…</div>
+      </header>
+
+      <section class="controls">
+        <label>
+          状态文件（路径或上传）
+          <input id="stateFile" placeholder="deployment_state.json" value="deployment_state.json" />
+        </label>
+        <input id="stateUpload" type="file" accept=".json" />
+        <button id="reload">重新加载</button>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>自动决策</h2>
+          <div class="kv" id="decision"></div>
+        </div>
+        <div class="card">
+          <h2>部署结果</h2>
+          <div class="kv" id="deploy"></div>
+        </div>
+        <div class="card">
+          <h2>验证与风险</h2>
+          <div class="kv" id="verify"></div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <div class="card-header">
+            <h2>检测样例</h2>
+            <button class="ghost" data-toggle="sample">展开/收起</button>
+          </div>
+          <pre id="sample" class="collapsed"></pre>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h2>完整状态（JSON）</h2>
+            <button class="ghost" data-toggle="raw">展开/收起</button>
+          </div>
+          <pre id="raw" class="collapsed"></pre>
+        </div>
+      </section>
+    </main>
+
+    <script src="state.js"></script>
+  </body>
+</html>
