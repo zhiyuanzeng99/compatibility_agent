@@ -350,7 +350,10 @@ def run_v22(
 
     if guard == "llama_firewall":
         steps.append("generate LlamaFirewall integration stub")
-        stub = \"\"\"# LlamaFirewall integration stub\n# TODO: implement real SDK or gateway wiring\n\"\"\"\n        stub_path = output_dir / "llama_firewall_stub.py"
+        stub = """# LlamaFirewall integration stub
+# TODO: implement real SDK or gateway wiring
+"""
+        stub_path = output_dir / "llama_firewall_stub.py"
         written = _write_file(stub_path, stub, dry_run)
         if written:
             artifacts.append(written)
