@@ -146,3 +146,50 @@
 - Current V0/V1/V2 are automation pipelines, not a trained Agent.
 - True Agent requires LLM decision layer + SFT/RL training loop + tool execution.
 - Next step if needed: Agent V3 with LLM planning + training data feedback.
+
+## Update: V2.2 + V3 (2026-02-04)
+
+- V2.2 adds blackbox/whitebox + gateway artifacts and llama_firewall stub.
+  Command:
+  ```bash
+  python -m adapter_agent.cli v22 \
+    --project-path /root/project/openclaw \
+    --app openclaw \
+    --guard openguardrails \
+    --mode blackbox \
+    --out-dir ./artifacts \
+    --state-out ./deployment_state_v22.json
+  ```
+
+- V3 introduces a planning layer (planner + executor):
+  - `adapter-agent/adapter_agent/v3/planner.py`
+  - `adapter-agent/adapter_agent/v3/executor.py`
+  - `adapter-agent/adapter_agent/v3/pipeline.py`
+  - `adapter-agent/V3_PIPELINE.md`
+
+- V3 command:
+  ```bash
+  python -m adapter_agent.cli v3 \
+    --project-path /root/project/openclaw \
+    --guard openguardrails \
+    --mode whitebox \
+    --validate \
+    --state-out ./deployment_state_v3.json
+  ```
+  Plan-only mode:
+  ```bash
+  python -m adapter_agent.cli v3 \
+    --project-path /root/project/openclaw \
+    --guard openguardrails \
+    --mode blackbox \
+    --plan-only \
+    --state-out ./deployment_state_v3_plan.json
+  ```
+
+- Key distinction (no model):
+  - V2 = direct pipeline (no explicit plan).
+  - V3 = explicit plan + execution separation (agent-like shape), even if plan is rules-based.
+
+[2026-02-04]
+- User asked: "那你不用模型的话，你的V3和V2的区别是什么，还有帮我保存对话".
+- Response drafted: V3 introduces explicit plan + execute separation (planner outputs steps/state; executor runs), supports plan-only, is agent-shaped but rule-based; V2 is a direct pipeline without explicit planning. V3 becomes meaningfully different once an LLM planner + feedback loop is wired in.

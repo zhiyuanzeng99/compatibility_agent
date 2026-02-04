@@ -197,5 +197,42 @@ def v22_cmd(
         sys.exit(1)
 
 
+@main.command("v3")
+@click.option("--project-path", required=True, type=click.Path(path_type=Path))
+@click.option("--guard", required=True)
+@click.option("--mode", default="whitebox")
+@click.option("--validate/--no-validate", default=True)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--plan-only", is_flag=True, default=False)
+@click.option("--out-dir", default=None)
+@click.option("--state-out", default=None)
+def v3_cmd(
+    project_path: Path,
+    guard: str,
+    mode: str,
+    validate: bool,
+    dry_run: bool,
+    plan_only: bool,
+    out_dir: str | None,
+    state_out: str | None,
+) -> None:
+    """Run V3 agent pipeline (LLM-planned deployment)."""
+    from .v3.pipeline import run_v3
+
+    result = run_v3(
+        project_path=str(project_path),
+        guard=guard,
+        mode=mode,
+        validate=validate,
+        dry_run=dry_run,
+        plan_only=plan_only,
+        out_dir=out_dir,
+        state_out=state_out,
+    )
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
+    if not result.ok:
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()
