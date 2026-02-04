@@ -18,6 +18,16 @@ python -m adapter_agent.cli v1 \
   --deploy
 ```
 
+### 一键部署（OpenClaw + OpenGuardrails）
+```bash
+python -m adapter_agent.cli v1 \
+  --project-path /root/project/openclaw \
+  --one-click \
+  --target-app openclaw \
+  --tool openguardrails \
+  --validate
+```
+
 ### 多工具协同
 ```bash
 python -m adapter_agent.cli v1 \
@@ -37,6 +47,8 @@ python -m adapter_agent.cli v1 \
 - `--validate/--no-validate`：部署后验证（默认开启）
 - `--auto-fix/--no-auto-fix`：验证失败时尝试自动修复
 - `--lifecycle/--no-lifecycle`：是否写入生命周期检查点（默认开启）
+- `--one-click/--no-one-click`：一键部署预设（当前支持 OpenClaw + OpenGuardrails）
+- `--target-app`：目标应用类型（如 `openclaw`），配合 `--one-click` 使用
 
 ## 输出说明
 CLI 输出 JSON 包含：
@@ -49,3 +61,4 @@ CLI 输出 JSON 包含：
 - `fixes`：自动修复结果（若开启）
 - `pipeline`：多工具编排结果（若使用 `--tools`）
 - `lifecycle`：生命周期状态（包含检查点记录）
+- `details`：一键部署额外细节（健康检查等）

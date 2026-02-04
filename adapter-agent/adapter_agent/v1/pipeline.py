@@ -14,6 +14,7 @@ from ..core.orchestrator import PipelineResult, orchestrate
 from ..core.lifecycle import LifecycleController, LifecyclePhase
 from ..core.validator import Validator, ValidationReport
 from ..core.fixer import Fixer, FixResult
+from ..v0.pipeline import run_v0
 
 
 @dataclass
@@ -28,6 +29,8 @@ class V1Config:
     validate: bool = True
     auto_fix: bool = False
     use_lifecycle: bool = True
+    one_click: bool = False
+    target_app: Optional[str] = None
 
 
 @dataclass
@@ -43,6 +46,7 @@ class V1Result:
     fixes: Optional[dict]
     pipeline: Optional[dict]
     lifecycle: Optional[dict]
+    details: Optional[dict]
 
 
 def _select_tool(profile: ProjectProfile, tool: Optional[SafetyTool]) -> ToolRecommendation:
@@ -66,6 +70,8 @@ def run_v1(
     validate: bool = True,
     auto_fix: bool = False,
     use_lifecycle: bool = True,
+    one_click: bool = False,
+    target_app: Optional[str] = None,
 ) -> V1Result:
     project = Path(project_path).expanduser().resolve()
     scanner = ProjectScanner(str(project))
@@ -75,6 +81,42 @@ def run_v1(
     recommendations = matcher.match()
 
     selected_tool = SafetyTool(tool) if tool else None
+    target = (target_app or "").strip().lower() if target_app else None
+
+    if one_click or (target == "openclaw" and (tool is None or tool == "openguardrails")):
+        v0_result = run_v0(
+            project_path=str(project),
+            config_path=None,
+            og_base_url=None,
+            og_detect_url=None,
+            model_id="gpt-4",
+            dry_run=dry_run,
+            verify=validate,
+            verify_script=None,
+        )
+        return V1Result(
+            ok=v0_result.ok,
+            message="v1 one-click (openclaw+openguardrails) completed" if v0_result.ok else v0_result.message,
+            profile=profile.to_dict(),
+            recommendations=[r.to_dict() for r in recommendations],
+            selected_tool="openguardrails",
+            generated={
+                "config_written": v0_result.config_written,
+                "backup_path": str(v0_result.backup_path) if v0_result.backup_path else None,
+            },
+            deployment=None,
+            validation=None,
+            fixes=None,
+            pipeline=None,
+            lifecycle=None,
+            details={
+                "detect_health": v0_result.detect_health,
+                "proxy_health": v0_result.proxy_health,
+                "detection_result": v0_result.detection_result,
+                "verify_script_ok": v0_result.verify_script_ok,
+                "verify_script_output": v0_result.verify_script_output,
+            },
+        )
 
     lifecycle: Optional[LifecycleController] = None
     if use_lifecycle:
@@ -124,6 +166,7 @@ def run_v1(
             fixes=None,
             pipeline=pipeline_result.to_dict(),
             lifecycle=lifecycle.state.to_dict() if lifecycle else None,
+            details=None,
         )
 
     recommendation = _select_tool(profile, selected_tool)
@@ -180,4 +223,5 @@ def run_v1(
         fixes=fix_result.to_dict() if fix_result else None,
         pipeline=pipeline_result.to_dict() if pipeline_result else None,
         lifecycle=lifecycle.state.to_dict() if lifecycle else None,
+        details=None,
     )

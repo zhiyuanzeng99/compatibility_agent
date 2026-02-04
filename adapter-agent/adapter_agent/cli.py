@@ -64,6 +64,8 @@ if __name__ == "__main__":
 @click.option("--validate/--no-validate", default=True)
 @click.option("--auto-fix/--no-auto-fix", default=False)
 @click.option("--lifecycle/--no-lifecycle", default=True)
+@click.option("--one-click/--no-one-click", default=False)
+@click.option("--target-app", default=None)
 def v1_cmd(
     project_path: Path,
     output_dir: Path | None,
@@ -75,6 +77,8 @@ def v1_cmd(
     validate: bool,
     auto_fix: bool,
     lifecycle: bool,
+    one_click: bool,
+    target_app: str | None,
 ) -> None:
     """Run V1 pipeline (multi-tool)."""
     from .v1.pipeline import run_v1
@@ -90,6 +94,8 @@ def v1_cmd(
         validate=validate,
         auto_fix=auto_fix,
         use_lifecycle=lifecycle,
+        one_click=one_click,
+        target_app=target_app,
     )
     click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
     if not result.ok:
