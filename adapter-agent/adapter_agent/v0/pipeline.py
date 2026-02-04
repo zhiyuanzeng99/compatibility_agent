@@ -184,7 +184,7 @@ def run_v0(
 
     if verify:
         result.proxy_health = _check_url("http://127.0.0.1:5002/health")
-        result.detect_health = _check_url("http://127.0.0.1:5001/guardrails/health")
+        result.detect_health = _check_url("http://127.0.0.1:5001/health")
         og_api_key = os.getenv("OG_API_KEY")
         if og_api_key:
             result.detection_result = _detect_sample(og_api_key, cfg.og_detect_url)
