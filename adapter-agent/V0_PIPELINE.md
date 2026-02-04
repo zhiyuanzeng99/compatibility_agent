@@ -23,6 +23,29 @@ python -m adapter_agent.cli v0 \
   --verify-script /Users/zhiyuan/compatibility_agent/scripts/verify_og_openclaw.sh
 ```
 
+## 简化演示版（推荐）
+面向展示/验收的最短路径，仅证明“可部署 + 健康检查通过”：
+
+```bash
+cd /root/project/compatibility_agent/adapter-agent
+
+# 最小必要环境变量（其余可先不设置）
+export OPENCLAW_GATEWAY_TOKEN="my-openclaw-token"
+export OPENAI_API_KEY="sk-..."
+
+python -m adapter_agent.cli v0 \
+  --project-path /root/project/openclaw \
+  --verify
+```
+
+成功标志：
+- `config_written: true`
+- `proxy_health: true`
+- `detect_health: true`
+
+说明：
+- `detection_result` 为空/401 不影响“部署成功”的结论，只表示没做检测样例或未设置 `OG_API_KEY`。
+
 ### 参数说明
 - `--project-path`：OpenClaw 项目路径（必须）
 - `--config-path`：OpenClaw 配置写入位置（默认 `~/.openclaw/openclaw.json`）
@@ -32,8 +55,8 @@ python -m adapter_agent.cli v0 \
 
 ### 环境变量说明
 - `OPENCLAW_GATEWAY_TOKEN`（可选）：写入 `gateway.auth.token`
-- `OPENAI_API_KEY`（必须）：OpenClaw 调用 OpenGuardrails 代理所用 key
-- `OG_API_KEY`（可选）：用于 `/v1/guardrails` 检测验证
+- `OPENAI_API_KEY`（必须）：OpenGuardrails 调用模型提供方（如 OpenAI）所用 key
+- `OG_API_KEY`（可选）：用于 OpenGuardrails 检测接口 `/v1/guardrails`
 
 ## verify_og_openclaw.sh 说明
 脚本路径：
@@ -55,8 +78,8 @@ export OPENCLAW_GATEWAY_TOKEN="zhiyuan-2026-strong-token"
 ```
 
 ### OPENAI_API_KEY
-这是 OpenClaw 调用 OpenGuardrails 代理服务（5002/v1）时使用的 key。
-直接复用 OpenGuardrails 的 `api_key`（见下）。
+这是 OpenGuardrails 调用模型提供方（如 OpenAI）时使用的 key。
+需要在 OpenAI 控制台创建，不等同于 OG_API_KEY。
 
 ### OG_API_KEY（OpenGuardrails API Key）
 通过 OpenGuardrails Admin API 登录获取（无 UI 时推荐）：
@@ -68,4 +91,3 @@ curl -s -X POST http://127.0.0.1:5500/api/v1/users/login \
 ```
 输出形如 `sk-xxai-...`，用于：
 - `OG_API_KEY`（检测接口 `/v1/guardrails`）
-- `OPENAI_API_KEY`（OpenClaw 走 OpenGuardrails 代理）
