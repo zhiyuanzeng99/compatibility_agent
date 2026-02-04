@@ -44,7 +44,7 @@ def v0_cmd(
         verify=verify,
         verify_script=verify_script,
     )
-    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True))
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
     if not result.ok:
         sys.exit(1)
 
@@ -87,6 +87,6 @@ def v1_cmd(
         auto_fix=auto_fix,
         use_lifecycle=lifecycle,
     )
-    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True))
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
     if not result.ok:
         sys.exit(1)
