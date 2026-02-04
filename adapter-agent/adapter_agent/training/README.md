@@ -18,6 +18,16 @@ pip install -e ".[training]"
 - `adapter_agent/training/data/seed_sft.jsonl`
 - `adapter_agent/training/data/seed_tool.jsonl`
 
+生成 Planner 的 SFT/DPO 数据（500条）：
+
+```bash
+python -m adapter_agent.training.generate_planner_data \
+  --count 500 \
+  --state-glob "/root/project/compatibility_agent/adapter-agent/deployment_state_*.json" \
+  --out-sft ./adapter_agent/training/data/planner_sft.jsonl \
+  --out-dpo ./adapter_agent/training/data/planner_dpo.jsonl
+```
+
 生成更多工具调用数据：
 
 ```bash
@@ -60,4 +70,3 @@ deepspeed --num_gpus=4 -m adapter_agent.training.train_sft \
 - `train_sft.py` 同时支持 `conversations` 和 `messages` 的 JSONL。
 - 工具调用数据会优先使用模型的 chat template 转成文本，
   若模型没有 template，则使用简化格式。
-

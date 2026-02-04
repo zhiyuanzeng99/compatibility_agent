@@ -193,3 +193,15 @@
 [2026-02-04]
 - User asked: "那你不用模型的话，你的V3和V2的区别是什么，还有帮我保存对话".
 - Response drafted: V3 introduces explicit plan + execute separation (planner outputs steps/state; executor runs), supports plan-only, is agent-shaped but rule-based; V2 is a direct pipeline without explicit planning. V3 becomes meaningfully different once an LLM planner + feedback loop is wired in.
+
+[2026-02-04]
+- User reminder: demo UI can be opened at /Users/zhiyuan/compatibility_agent/adapter-agent/demo/state.html.
+- User request: from now on, save every conversation line into /Users/zhiyuan/compatibility_agent/SESSION_NOTES.md.
+
+[2026-02-04]
+User: OK，然后怎么显示你的结果呢
+Assistant: 用 demo/state.html 打开，页面支持上传/选择你的 deployment_state_v3.json 并展示 steps/artifacts/issues。
+
+[2026-02-04]
+User: 算了，不用每句都记录了，我让你记的时候你在记吧
+Assistant: 了解，之后你明确要求记录时我再写入 SESSION_NOTES.md。
