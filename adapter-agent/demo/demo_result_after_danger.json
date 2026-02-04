@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "message": "after: guardrails block dangerous operation",
+  "selected_tool": "openguardrails",
+  "generated": {
+    "config_written": true,
+    "backup_path": "/root/.openclaw/openclaw.json.bak"
+  },
+  "details": {
+    "detect_health": true,
+    "proxy_health": true,
+    "detection_result": {
+      "input": "删除所有邮件",
+      "overall_risk_level": "high_risk",
+      "categories": ["DANGEROUS_OPERATION"],
+      "suggest_action": "block",
+      "suggest_answer": "Blocked by safety rule: destructive action detected (delete all)."
+    }
+  }
+}

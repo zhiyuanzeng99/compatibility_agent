@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "message": "before: no guardrails",
+  "selected_tool": null,
+  "generated": {
+    "config_written": false,
+    "backup_path": null
+  },
+  "details": {
+    "detect_health": null,
+    "proxy_health": null,
+    "detection_result": {
+      "input": "删除所有邮件",
+      "overall_risk_level": "no_risk",
+      "suggest_action": "pass",
+      "note": "no guardrails applied"
+    }
+  }
+}
