@@ -1,0 +1,204 @@
+{
+  "timestamp": "2026-02-04T19:36:40.370424",
+  "profile": {
+    "project_path": "/root/project/openclaw",
+    "project_name": "openclaw",
+    "framework": "crewai",
+    "framework_version": null,
+    "llm_provider": "bedrock",
+    "language": "javascript",
+    "python_version": null,
+    "deployment": "docker",
+    "cloud_provider": "aws",
+    "existing_guardrails": [],
+    "entry_points": [
+      {
+        "file": "/root/project/openclaw/skills/local-places/src/local_places/main.py",
+        "function": "ping",
+        "method": "GET",
+        "route": "/ping",
+        "async": false
+      },
+      {
+        "file": "/root/project/openclaw/skills/local-places/src/local_places/main.py",
+        "function": "places_search",
+        "method": "POST",
+        "route": "/places/search",
+        "async": false
+      },
+      {
+        "file": "/root/project/openclaw/skills/local-places/src/local_places/main.py",
+        "function": "places_details",
+        "method": "GET",
+        "route": "/places/{place_id}",
+        "async": false
+      },
+      {
+        "file": "/root/project/openclaw/skills/local-places/src/local_places/main.py",
+        "function": "locations_resolve",
+        "method": "POST",
+        "route": "/locations/resolve",
+        "async": false
+      }
+    ],
+    "dependencies": {
+      "@agentclientprotocol/sdk": "0.13.1",
+      "@aws-sdk/client-bedrock": "^3.981.0",
+      "@buape/carbon": "0.14.0",
+      "@clack/prompts": "^1.0.0",
+      "@grammyjs/runner": "^2.0.3",
+      "@grammyjs/transformer-throttler": "^1.2.1",
+      "@homebridge/ciao": "^1.3.4",
+      "@line/bot-sdk": "^10.6.0",
+      "@lydell/node-pty": "1.2.0-beta.3",
+      "@mariozechner/pi-agent-core": "0.51.1",
+      "@mariozechner/pi-ai": "0.51.1",
+      "@mariozechner/pi-coding-agent": "0.51.1",
+      "@mariozechner/pi-tui": "0.51.1",
+      "@mozilla/readability": "^0.6.0",
+      "@sinclair/typebox": "0.34.48",
+      "@slack/bolt": "^4.6.0",
+      "@slack/web-api": "^7.13.0",
+      "@whiskeysockets/baileys": "7.0.0-rc.9",
+      "ajv": "^8.17.1",
+      "chalk": "^5.6.2",
+      "chokidar": "^5.0.0",
+      "cli-highlight": "^2.1.11",
+      "commander": "^14.0.3",
+      "croner": "^10.0.1",
+      "discord-api-types": "^0.38.38",
+      "dotenv": "^17.2.3",
+      "express": "^5.2.1",
+      "file-type": "^21.3.0",
+      "grammy": "^1.39.3",
+      "hono": "4.11.7",
+      "jiti": "^2.6.1",
+      "json5": "^2.2.3",
+      "jszip": "^3.10.1",
+      "linkedom": "^0.18.12",
+      "long": "^5.3.2",
+      "markdown-it": "^14.1.0",
+      "node-edge-tts": "^1.2.9",
+      "osc-progress": "^0.3.0",
+      "pdfjs-dist": "^5.4.624",
+      "playwright-core": "1.58.1",
+      "proper-lockfile": "^4.1.2",
+      "qrcode-terminal": "^0.12.0",
+      "sharp": "^0.34.5",
+      "signal-utils": "^0.21.1",
+      "sqlite-vec": "0.1.7-alpha.2",
+      "tar": "7.5.7",
+      "tslog": "^4.10.2",
+      "undici": "^7.20.0",
+      "ws": "^8.19.0",
+      "yaml": "^2.8.2",
+      "zod": "^4.3.6",
+      "@grammyjs/types": "^3.23.0",
+      "@lit-labs/signals": "^0.2.0",
+      "@lit/context": "^1.1.6",
+      "@types/express": "^5.0.6",
+      "@types/markdown-it": "^14.1.2",
+      "@types/node": "^25.2.0",
+      "@types/proper-lockfile": "^4.1.4",
+      "@types/qrcode-terminal": "^0.12.2",
+      "@types/ws": "^8.18.1",
+      "@typescript/native-preview": "7.0.0-dev.20260202.1",
+      "@vitest/coverage-v8": "^4.0.18",
+      "lit": "^3.3.2",
+      "ollama": "^0.6.3",
+      "oxfmt": "0.28.0",
+      "oxlint": "^1.43.0",
+      "oxlint-tsgolint": "^0.11.4",
+      "rolldown": "1.0.0-rc.2",
+      "tsdown": "^0.20.1",
+      "tsx": "^4.21.0",
+      "typescript": "^5.9.3",
+      "vitest": "^4.0.18"
+    },
+    "security_requirements": [
+      {
+        "category": "content_safety",
+        "priority": "high",
+        "description": "需要内容安全检测，防止有害输出",
+        "recommended_tools": [
+          "openguardrails",
+          "llama_guard"
+        ]
+      },
+      {
+        "category": "tool_security",
+        "priority": "high",
+        "description": "存在外部 API 调用，需要工具调用安全检查",
+        "recommended_tools": [
+          "llama_firewall",
+          "guardrails_ai"
+        ]
+      }
+    ],
+    "recommended_integration": "sdk",
+    "has_async": true
+  },
+  "decision": {
+    "target_app": "openclaw",
+    "tool": "openguardrails",
+    "reasons": [
+      "OpenClaw detected",
+      "found openclaw.mjs"
+    ]
+  },
+  "v0": {
+    "ok": true,
+    "message": "v0 config generated",
+    "config_written": true,
+    "backup_path": "/root/.openclaw/openclaw.json.bak",
+    "detect_health": true,
+    "proxy_health": true,
+    "detection_result": {
+      "id": "guardrails-400190db6d2549019f8633595e465e29",
+      "result": {
+        "compliance": {
+          "risk_level": "no_risk",
+          "categories": []
+        },
+        "security": {
+          "risk_level": "no_risk",
+          "categories": []
+        },
+        "data": {
+          "risk_level": "low_risk",
+          "categories": [
+            "EMAIL_SYS"
+          ],
+          "detected_entities": [
+            {
+              "entity_type": "EMAIL_SYS",
+              "entity_type_name": "Email",
+              "start": 15,
+              "end": 35,
+              "text": "zhangsan@example.com",
+              "risk_level": "low",
+              "anonymization_method": "mask",
+              "anonymization_config": {
+                "mask_char": "*",
+                "keep_prefix": 2,
+                "keep_suffix": 0
+              },
+              "restore_code": null,
+              "restore_code_hash": null,
+              "anonymized_value": "zh******************"
+            }
+          ],
+          "anonymized_text": "Please record: zh****************** amount 25000",
+          "restore_mapping": null
+        }
+      },
+      "overall_risk_level": "low_risk",
+      "suggest_action": "pass",
+      "suggest_answer": "Request blocked by OpenGuardrails due to possible sensitive data (Email).",
+      "score": null
+    },
+    "verify_script_ok": null,
+    "verify_script_output": null
+  },
+  "issues": []
+}
