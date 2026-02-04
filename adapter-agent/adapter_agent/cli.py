@@ -49,10 +49,6 @@ def v0_cmd(
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    main()
-
-
 @main.command("v1")
 @click.option("--project-path", required=True, type=click.Path(path_type=Path))
 @click.option("--output-dir", default=None, type=click.Path(path_type=Path))
@@ -100,3 +96,6 @@ def v1_cmd(
     click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
     if not result.ok:
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()
