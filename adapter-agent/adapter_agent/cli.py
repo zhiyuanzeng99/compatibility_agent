@@ -97,5 +97,34 @@ def v1_cmd(
     if not result.ok:
         sys.exit(1)
 
+
+@main.command("v2")
+@click.option("--project-path", required=True, type=click.Path(path_type=Path))
+@click.option("--validate/--no-validate", default=True)
+@click.option("--auto-fix/--no-auto-fix", default=False)
+@click.option("--dry-run", is_flag=True, default=False)
+@click.option("--state-out", default=None)
+def v2_cmd(
+    project_path: Path,
+    validate: bool,
+    auto_fix: bool,
+    dry_run: bool,
+    state_out: str | None,
+) -> None:
+    """Run V2 agent pipeline (auto decision + deploy + validate)."""
+    from .v2.pipeline import run_v2
+
+    result = run_v2(
+        project_path=str(project_path),
+        validate=validate,
+        auto_fix=auto_fix,
+        dry_run=dry_run,
+        state_out=state_out,
+    )
+    click.echo(json.dumps(result.__dict__, indent=2, ensure_ascii=True, default=str))
+    if not result.ok:
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()
